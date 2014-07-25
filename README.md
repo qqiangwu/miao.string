@@ -30,7 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 ==============
 Usage:
-
+<pre><code>
 import miao.string.knuth_morris_pratt;
 
 knuth_morris_pratt("abc", "a"); // -> 0
@@ -53,3 +53,4 @@ searcher.search("ccab"); // -> 2
 
 import miao.string.horspool;
 import miao.string.karp_rabin;
+</code></pre>

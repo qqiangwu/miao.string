@@ -36,13 +36,17 @@ knuth_morris_pratt("abc", "a"); // -> 0
 knuth_morris_pratt("abc", ""); // -> -1
 
 const searcher = Knuth_morris_pratt_seacher("ab");
+
 searcher.search("abc"); // -> 0
 searcher.search("ccab"); // -> 2
 
 import miao.string.brute_force;
+
 brute_force("abc", "a"); // -> 0
 brute_force("abc", ""); // -> -1
+
 const searcher = Brute_force_searcher("ab");
+
 searcher.search("abc"); // -> 0
 searcher.search("ccab"); // -> 2
 

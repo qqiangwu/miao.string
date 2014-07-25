@@ -9,25 +9,25 @@ public:
 		pattern_ = pattern;
 	}
 	
-	uint search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow
 	out(result) {
-		assert(-1 <= result && result < corpus.length);
+		import std.conv : to;
+		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
 	body {
-		if (corpus.length == 0) return -1;
-		if (pattern_.length == 0) return -1;
-		if (pattern_.length > corpus.length) return -1;
+		if (corpus.length == 0 || pattern_.length == 0) return -1;
+		if (corpus.length < pattern_.length) return -1;
 		return search_(corpus);
 	}
 	
 private:
-	uint search_(in string corpus) pure nothrow
+	int search_(in string corpus) pure nothrow
 	{
 		immutable compare_length = corpus.length - pattern_.length;
 		
 		auto window_pos = 0;
 		
-		for (; window_pos < compare_length; ++window_pos) {
+		for (; window_pos <= compare_length; ++window_pos) {
 			immutable window = corpus[window_pos .. window_pos + pattern_.length];
 			auto cursor = 0;
 			
@@ -45,11 +45,15 @@ private:
 	string pattern_;
 }
 
-uint brute_force(in string corpus, in string pattern) nothrow
+int brute_force(in string corpus, in string pattern) nothrow
 {
 	return Brute_force_searcher(pattern).search(corpus);
 }
 
 unittest {
-	
+	import miao.string.test;
+	import std.stdio;
+		
+	writeln("Test brute force");
+	runTest!brute_force();
 }

@@ -20,56 +20,62 @@ public:
 		}
 	}
 	
-	uint search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow
 	out(result) {
-		assert(-1 <= result && result < corpus.length);
+		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
 	body {
-		if (corpus.length == 0 || corpus.length < pattern_.length) return -1;
+		if (corpus.length == 0 || pattern_.length == 0) return -1;
+		if (corpus.length < pattern_.length) return -1;
+
 		return search_(corpus);
 	}
 	
 private:
 	void build_skip_table_()
 	{
-		skip_ = new uint[pattern_.length];
+		skip_ = new int[pattern_.length];
 		
 		skip_[0] = -1;
 		
-		uint prefix_cursor = 0;
-		uint cursor = 1;
-		
+		int cursor = 2;
 		while (cursor < pattern_.length) {
-			while (prefix_cursor >= 0 && pattern_[cursor] != pattern_[prefix_cursor]) {
+			int prev = cursor - 1;
+			int prefix_cursor = skip_[prev];
+			while (prefix_cursor >= 0 && pattern_[prev] != pattern_[prefix_cursor]) {
 				prefix_cursor = skip_[prefix_cursor];
 			}
 			
-			skip_[cursor] = prefix_cursor >= 0? prefix_cursor: 0;
-			
+			skip_[cursor] = prefix_cursor + 1;
 			cursor++;
-			prefix_cursor++;
 		}
 	}
 	
-	uint search_(in string corpus) pure nothrow
+	int search_(in string corpus) pure nothrow
 	{
 		const cmp_len = corpus.length - pattern_.length;
+		const last_pos = pattern_.length - 1;
 		
-		auto window_pos = 0;
-		auto cursor = 0;
+		int window_pos = 0;
+		int cursor = 0;
 		
-		while (window_pos < cmp_len) {
+		while (window_pos <= cmp_len) {
+			assert(0 <= cursor && cursor < pattern_.length);
+
 			const window = corpus[window_pos .. window_pos + pattern_.length];
 			
 			// find the first mismatch
 			for (; window[cursor] == pattern_[cursor]; ++cursor) {
-				/* empty */
+				if (cursor == last_pos) return window_pos; 
 			}
 			
 			// move window and cursor
 			const prefix_cursor = skip_[cursor];
 			window_pos += cursor - prefix_cursor;
 			cursor = prefix_cursor >= 0? prefix_cursor: 0; 
+
+			assert(window_pos >= 0);
+			assert(0 <= cursor && cursor < pattern_.length);
 		}
 		
 		return -1;
@@ -77,10 +83,18 @@ private:
 
 private:
 	string pattern_;
-	uint[] skip_;
+	int[] skip_;
 }
 
-uint knuth_morris_pratt(in string corpus, in string pattern)
+int knuth_morris_pratt(in string corpus, in string pattern)
 {
-	return Knuth_morris_pratt_searcher(corpus).search(pattern);
+	return Knuth_morris_pratt_searcher(pattern).search(corpus);
+}
+
+unittest {
+	import miao.string.test;
+	import std.stdio;
+
+	writeln("Test knuth_morris_pratt");
+	runTest!knuth_morris_pratt();
 }

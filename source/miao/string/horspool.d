@@ -27,26 +27,26 @@ public:
 		}
 	}
 	
-	uint search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow
 	out(result) {
-		assert(-1 <= result && result < corpus.length);
+		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
 	body {
-		if (corpus.length == 0) return -1;
+		if (corpus.length == 0 || pattern_.length == 0) return -1;
 		if (corpus.length < pattern_.length) return -1;
 		
 		return search_(corpus);
 	}
 	
 private:
-	uint search_(in string corpus) pure nothrow
+	int search_(in string corpus) pure nothrow
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		
-		auto cursor = pattern_.length - 1;
-		auto window_pos = 0;
+		int cursor = pattern_.length - 1;
+		int window_pos = 0;
 		
-		while (window_pos < cmp_len) {
+		while (window_pos <= cmp_len) {
 			const window = corpus[window_pos .. window_pos + pattern_.length];
 			
 			//! find mismatch
@@ -54,13 +54,13 @@ private:
 				--cursor;
 			}
 			
-			if (cursor == 0) {
+			if (cursor == -1) {
 				return window_pos;
 			}
 			else {
 				// sliding window
 				cursor = pattern_.length - 1;
-				window_pos = pattern_.length - skip_.get(window[cursor]);
+				window_pos += cursor - skip_.get(window[cursor]);
 			}
 		}
 		
@@ -69,38 +69,47 @@ private:
 
 	void build_skip_table_()
 	{
+		//! ignore the last char
 		for (auto i = 0; i < pattern_.length - 1; ++i) {
 			skip_.insert(pattern_[i], i);
 		}
 	}
 	
 private:
-	Skip_table skip_ = Skip_table(0);
+	Skip_table skip_ = Skip_table(-1);
 	string pattern_;
 }
 
-uint horspool(in string corpus, in string pattern)
+int horspool(in string corpus, in string pattern)
 {
-	return Horspool_searcher(corpus).search(pattern);
+	return Horspool_searcher(pattern).search(corpus);
 }
 
 private struct Skip_table {
-	uint[char] skip_;
-	uint default_;
+	int[char] skip_;
+	int default_;
 	
-	this(in uint default_val)
+	this(in int default_val)
 	{
 		default_ = default_val;
 	}
-	
-	void insert(in char c, in uint idx)
+
+	void insert(in char c, in int idx)
 	{
 		skip_[c] = idx;
 	}
 	
-	uint get(in char ch) pure nothrow
+	int get(in char ch) pure nothrow
 	{
 		const val = ch in skip_;
 		return val? *val: default_;
 	}
+}
+
+unittest {
+	import miao.string.test;
+	import std.stdio;
+
+	writeln("Test horspool");
+	runTest!horspool();
 }

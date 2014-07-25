@@ -1,4 +1,9 @@
 *.lib
+*.exe
+*.sln
+*.visualdproj
+*.suo
+**/Debug/**
 
 .dub
 .dub/**

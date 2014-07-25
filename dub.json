@@ -1,7 +1,7 @@
 {
 	"name": "miao-string",
 	"description": "String matching lib",
-	"copyright": "Copyright © 2014, qiangqiang.wu",
+	"copyright": "Copyright © 2014, Felix Wu",
 	"authors": ["Felix Wu"],
 	"license": "Boost",
 	"targetType": "library",

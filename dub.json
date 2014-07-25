@@ -1,5 +1,5 @@
 {
-	"name": "miao.string",
+	"name": "miao-string",
 	"description": "String matching lib",
 	"copyright": "Copyright © 2014, qiangqiang.wu",
 	"authors": ["Felix Wu"],

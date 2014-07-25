@@ -49,3 +49,7 @@ uint brute_force(in string corpus, in string pattern) nothrow
 {
 	return Brute_force_searcher(pattern).search(corpus);
 }
+
+unittest {
+	
+}

@@ -20,7 +20,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -51,7 +51,7 @@ private:
 		}
 	}
 	
-	int search_(in string corpus) pure nothrow
+	int search_(in string corpus) pure nothrow const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		const last_pos = pattern_.length - 1;

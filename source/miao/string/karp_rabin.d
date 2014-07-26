@@ -39,7 +39,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -51,7 +51,7 @@ public:
 	}
 	
 private pure nothrow:
-	int search_(in string corpus)
+	int search_(in string corpus) const
 	{		
 		const compare_length = corpus.length - pattern_length_;
 
@@ -77,7 +77,7 @@ private pure nothrow:
 		return -1;
 	}
 
-	int hash_(in string s)
+	int hash_(in string s) const
 	{
 		int code = 0;
 		
@@ -88,7 +88,7 @@ private pure nothrow:
 		return code;
 	}
 	
-	int rehash_(in int oldv, in int newv, in int hcode) 
+	int rehash_(in int oldv, in int newv, in int hcode) const
 	{
 		assert(pattern_length_ > 0);
 		return ((hcode - oldv * d_) << 1) + newv;

@@ -27,7 +27,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) pure nothrow
+	int search(in string corpus) pure nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -39,7 +39,7 @@ public:
 	}
 	
 private:
-	int search_(in string corpus) pure nothrow
+	int search_(in string corpus) pure nothrow const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		
@@ -99,7 +99,7 @@ private struct Skip_table {
 		skip_[c] = idx;
 	}
 	
-	int get(in char ch) pure nothrow
+	int get(in char ch) pure nothrow const
 	{
 		const val = ch in skip_;
 		return val? *val: default_;

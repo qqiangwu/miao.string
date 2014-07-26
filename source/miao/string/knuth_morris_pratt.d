@@ -10,17 +10,17 @@ delay bounded by logPhi(m) where Phi is the golden ratio ( golden ratio ).
 @trusted:
 
 struct Knuth_morris_pratt_searcher {
-public:
-	this(in string pattern)
+public pure nothrow:
+	this(in string pattern) inout
 	{
 		pattern_ = pattern;
 		
 		if (pattern_.length != 0) {
-			build_skip_table_();
+			skip_ = build_skip_table_();
 		}
 	}
 	
-	int search(in string corpus) nothrow const
+	int search(in string corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -31,31 +31,33 @@ public:
 		return search_(corpus);
 	}
 	
-private:
-	void build_skip_table_()
+private pure nothrow:
+	int[] build_skip_table_() inout
 	{
-		skip_ = new int[pattern_.length];
+		auto skip = new int[pattern_.length];
 		
-		skip_[0] = -1;
+		skip[0] = -1;
 		
 		int cursor = 2;
 		while (cursor < pattern_.length) {
 			int prev = cursor - 1;
-			int prefix_cursor = skip_[prev];
+			int prefix_cursor = skip[prev];
 			
             while (prefix_cursor >= 0 && pattern_[prev] != pattern_[prefix_cursor]) {
-				prefix_cursor = skip_[prefix_cursor];
+				prefix_cursor = skip[prefix_cursor];
 			}
 			
             prefix_cursor++;
 
-			skip_[cursor] = prefix_cursor;
+			skip[cursor] = prefix_cursor;
 			
             cursor++;
 		}
+
+        return skip;
 	}
 	
-	int search_(in string corpus) nothrow const
+	int search_(in string corpus) const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		const last_pos = pattern_.length - 1;
@@ -86,11 +88,11 @@ private:
 	}
 
 private:
-	string pattern_;
-	int[] skip_;
+	immutable string pattern_;
+	immutable int[] skip_;
 }
 
-int knuth_morris_pratt(in string corpus, in string pattern)
+pure int knuth_morris_pratt(in string corpus, in string pattern) nothrow
 {
 	return Knuth_morris_pratt_searcher(pattern).search(corpus);
 }
@@ -101,4 +103,5 @@ unittest {
 
 	writeln("Test knuth_morris_pratt");
 	runTest!knuth_morris_pratt();
+    runCreate!Knuth_morris_pratt_searcher();
 }

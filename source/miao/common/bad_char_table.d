@@ -3,19 +3,19 @@ module miao.common.bad_char_table;
 @trusted:
 
 struct Bad_char_table {
-public:
-    this(in int defaul_val)
+public pure nothrow:
+    this(in int defaul_val) inout
     {
         default_val_ = defaul_val;
     }
 
-    int opIndex(in char idx) nothrow const
+    int opIndex(in char idx) const
     {
         const ret = idx in skip_table_;
         return ret? *ret: default_val_;
     }
 
-package:
+package pure nothrow:
     int opIndexAssign(in int val, in char idx)
     {
         return skip_table_[idx] = val;
@@ -26,7 +26,7 @@ private:
     immutable int default_val_;
 }
 
-Bad_char_table build_bm_table(in string pattern)
+pure Bad_char_table build_bm_table(in string pattern) nothrow
 in {
     assert(pattern.length > 0);
 }
@@ -42,7 +42,7 @@ body {
     return table;
 }
 
-Bad_char_table build_qs_table(in string pattern)
+pure Bad_char_table build_qs_table(in string pattern) nothrow
 in {
     assert(pattern.length > 0);
 }

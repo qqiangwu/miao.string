@@ -3,13 +3,13 @@ module miao.string.brute_force;
 @trusted:
 
 struct Brute_force_searcher {
-public:
-	this(in string pattern) nothrow
+public pure nothrow:
+	this(in string pattern) inout
 	{
 		pattern_ = pattern;
 	}
 	
-	int search(in string corpus) nothrow const
+	int search(in string corpus) const
 	out(result) {
 		import std.conv : to;
 		assert(result == -1 || (0 <= result && result < corpus.length));
@@ -20,10 +20,10 @@ public:
 		return search_(corpus);
 	}
 	
-private:
-	int search_(in string corpus) nothrow const
+private pure nothrow:
+	int search_(in string corpus) const
 	{
-		const compare_length = corpus.length - pattern_.length;
+	    immutable compare_length = corpus.length - pattern_.length;
 		
 		auto window_pos = 0;
 		
@@ -42,10 +42,10 @@ private:
 	}
 
 private:
-	string pattern_;
+	immutable string pattern_;
 }
 
-int brute_force(in string corpus, in string pattern) nothrow
+pure int brute_force(in string corpus, in string pattern) nothrow
 {
 	return Brute_force_searcher(pattern).search(corpus);
 }
@@ -54,6 +54,7 @@ unittest {
 	import miao.string.test;
 	import std.stdio;
 		
-	writeln("Test brute force");
+    writeln("Test brute force");
 	runTest!brute_force();
+    runCreate!Brute_force_searcher();
 }

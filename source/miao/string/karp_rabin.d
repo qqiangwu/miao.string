@@ -27,8 +27,8 @@ import std.math;
 @trusted:
 
 struct Karp_rabin_searcher {
-public:
-	this(in string pattern) nothrow
+public pure nothrow:
+	this(in string pattern) inout
 	{
 		/* preprocessing */
 		pattern_ = pattern;
@@ -39,7 +39,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) nothrow const
+	int search(in string corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -50,8 +50,8 @@ public:
 		return search_(corpus);
 	}
 	
-private:
-	int search_(in string corpus) nothrow const
+private pure nothrow:
+	int search_(in string corpus) const
 	{		
 		const compare_length = corpus.length - pattern_length_;
 
@@ -77,7 +77,7 @@ private:
 		return -1;
 	}
 
-	int hash_(in string s) nothrow const
+	int hash_(in string s) const
 	{
 		int code = 0;
 		
@@ -88,20 +88,20 @@ private:
 		return code;
 	}
 	
-	int rehash_(in int oldv, in int newv, in int hcode) nothrow const
+	int rehash_(in int oldv, in int newv, in int hcode) const
 	{
 		assert(pattern_length_ > 0);
 		return ((hcode - oldv * d_) << 1) + newv;
 	}
 	
 private:
-	string pattern_;
+	immutable string pattern_;
 	immutable int hashed_pattern_;
 	immutable int pattern_length_;
 	immutable int d_;
 }
 
-int karp_rabin(in string corpus, in string pattern) nothrow
+pure int karp_rabin(in string corpus, in string pattern) nothrow
 {
 	return Karp_rabin_searcher(pattern).search(corpus);
 }
@@ -112,4 +112,5 @@ unittest {
 
 	writeln("Test karp_rabin");
 	runTest!karp_rabin();
+    runCreate!Karp_rabin_searcher();
 }

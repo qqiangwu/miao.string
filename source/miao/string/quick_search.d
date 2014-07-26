@@ -21,8 +21,8 @@ Description
 import miao.common.bad_char_table;
 
 struct Quick_search_searcher {
-public:
-    this(in string pattern)
+public pure nothrow:
+    this(in string pattern) inout
     {
         pattern_ = pattern;
 
@@ -31,7 +31,7 @@ public:
         }
     }
 
-    int search(in string corpus) nothrow const
+    int search(in string corpus) const
 	out(result) {
             assert(result == -1 || (0 <= result && result < corpus.length));
     }
@@ -42,8 +42,8 @@ public:
 		return search_(corpus);
 	}
 
-private:
-    int search_(in string corpus) nothrow const
+private pure nothrow:
+    int search_(in string corpus) const
     {
         const cmp_len = corpus.length - pattern_.length;
 
@@ -68,11 +68,11 @@ private:
     }
 
 private:
-    Bad_char_table skip_ = void;
-    string pattern_;
+    immutable Bad_char_table skip_ = void;
+    immutable string pattern_;
 }
 
-int quick_search(in string corpus, in string pattern)
+pure int quick_search(in string corpus, in string pattern) nothrow
 {
 	return Quick_search_searcher(pattern).search(corpus);
 }
@@ -83,4 +83,5 @@ unittest {
 
 	writeln("Test quick_search");
 	runTest!quick_search();
+    runCreate!Quick_search_searcher();
 }

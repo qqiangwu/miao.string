@@ -12,12 +12,12 @@ Main features
 @trusted:
 
 struct Shift_or_searcher {
-public:
-    this(in string pattern)
+public pure nothrow:
+    this(in string pattern) inout
     in {
 		import std.string;
 
-        assert(pattern.length <= word_len, 
+        debug assert(pattern.length <= word_len, 
 			format("@Shift_or_searcher: pattern length %s must less than word size %s", 
 			   pattern.length, 
 			   word_len)
@@ -26,12 +26,12 @@ public:
     body {
         pat_len_ = pattern.length;
         if (pat_len_ > 0) {
-            preprocess_(pattern);
+            s_ = preprocess_(pattern);
             lim_ = ~0 << (pat_len_ - 1);
         }
     }
     
-    int search(in string corpus) nothrow const
+    int search(in string corpus) const
 	out(result) {
 			assert(result == -1 || (0 <= result && result < corpus.length));
 		}
@@ -42,11 +42,11 @@ public:
 		return search_(corpus);
     }
 
-private:
+private pure nothrow:
     enum word_len = int.sizeof * 8;
     enum ascii_size = 127;
     
-    int search_(in string corpus) nothrow const
+    int search_(in string corpus) const
     {
         auto state = ~0U;
         
@@ -60,36 +60,42 @@ private:
         return -1;
     }
     
-    void preprocess_(in string pattern)
+    uint[] preprocess_(in string pattern) inout
     in {
         assert(0 < pat_len_ && pat_len_ <= word_len);
         assert(s_ == null);
         assert(lim_ == 0);
     }
     body {
-        s_ = new uint[ascii_size];
-        foreach (ref x; s_) {
+        auto s = new uint[ascii_size];
+        foreach (ref x; s) {
             x = ~0;
         }
         
         //! record each letter's occurence on the pattern string
         foreach (const cursor, letter; pattern) {
-			s_[letter] &= ~(0x1 << cursor);
+			s[letter] &= ~(0x1 << cursor);
 		}
+
+        return s;
     }
     
 private:
-    uint[] s_;
+    immutable uint[] s_;
     immutable uint lim_;
     immutable int pat_len_;
 }
 
-int shift_or(in string corpus, in string pattern)
+pure int shift_or(in string corpus, in string pattern) nothrow
 {
     return Shift_or_searcher(pattern).search(corpus);
 }
 
 unittest {
+    import miao.string.test;
+
+    runCreate!Shift_or_searcher();
+
 	import miao.string.test;
 	import std.stdio;
 

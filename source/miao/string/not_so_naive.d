@@ -15,8 +15,8 @@ Description
 @trusted:
 
 struct Not_so_naive_searcher {
-public:
-    this(in string pattern) nothrow
+public pure nothrow:
+    this(in string pattern) inout
     {
         pattern_ = pattern;
         if (pattern_.length >= 2) {
@@ -31,7 +31,7 @@ public:
         }
     }
 
-    int search(in string corpus) nothrow const
+    int search(in string corpus) const
     out(result) {
             assert(result == -1 || (0 <= result && result < corpus.length));
     }
@@ -44,8 +44,8 @@ public:
 		return search_(corpus);
 	}
 
-private:
-    int search_(in string corpus) nothrow const
+private pure nothrow:
+    int search_(in string corpus) const
     in {
         assert(corpus.length >= 2);
         assert(pattern_.length >= 2);
@@ -68,12 +68,12 @@ private:
     }
     
 private:
-    string pattern_;
-    uint skip_;
-    uint slide_;
+    immutable string pattern_;
+    immutable uint skip_;
+    immutable uint slide_;
 }
 
-int not_so_naive(in string corpus, in string pattern) nothrow
+pure int not_so_naive(in string corpus, in string pattern) nothrow
 {
     return Not_so_naive_searcher(pattern).search(corpus);
 }
@@ -84,4 +84,5 @@ unittest {
 
     writeln("Test not_so_naive");
     runTest!not_so_naive();
+    runCreate!Not_so_naive_searcher();
 }

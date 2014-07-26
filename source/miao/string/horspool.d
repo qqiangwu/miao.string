@@ -20,8 +20,8 @@ The searching phase has a quadratic worst case but it can be proved that the ave
 import miao.common.bad_char_table;
 
 struct Horspool_searcher {
-public:
-	this(in string pattern)
+public pure nothrow:
+	this(in string pattern) inout
 	{
 		pattern_ = pattern;
 		if (pattern_.length > 0) {
@@ -29,7 +29,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) nothrow const
+	int search(in string corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -40,8 +40,8 @@ public:
 		return search_(corpus);
 	}
 	
-private:
-	int search_(in string corpus) nothrow const
+private pure nothrow:
+	int search_(in string corpus) const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		
@@ -71,11 +71,11 @@ private:
 	}
 	
 private:
-	Bad_char_table skip_ = void;
-	string pattern_;
+	immutable Bad_char_table skip_ = void;
+	immutable string pattern_;
 }
 
-int horspool(in string corpus, in string pattern)
+pure int horspool(in string corpus, in string pattern) nothrow
 {
 	return Horspool_searcher(pattern).search(corpus);
 }
@@ -86,4 +86,5 @@ unittest {
 
 	writeln("Test horspool");
 	runTest!horspool();
+    runCreate!Horspool_searcher();
 }

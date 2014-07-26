@@ -23,17 +23,17 @@ Description
 
 //! \fix    generalized to all kinds of charset
 struct Dfa_searcher {
-public:
-    this(in string pattern)
+public pure nothrow:
+    this(in string pattern) inout
     {
         pat_len_ = pattern.length;
         if (pat_len_ > 0) {
             terminal_ = pat_len_;
-            build_dfa_(pattern);
+            dfa_ = build_dfa_(pattern);
         }
     }
     
-    int search(in string corpus) nothrow const
+    int search(in string corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -44,16 +44,16 @@ public:
 		return search_(corpus);
 	}
     
-private:
+private pure nothrow:
     enum ascii_size = 127;
     enum init_state = 0;
     
-    void build_dfa_(in string pattern)
+    int[][] build_dfa_(in string pattern) inout
     in {
         assert(pat_len_ > 0);
     }
     body {
-        dfa_ = new int[][pat_len_ + 1];
+        auto dfa = new int[][pat_len_ + 1];
         
         auto state = init_state;
         
@@ -61,22 +61,25 @@ private:
             const target = i + 1;
             const event = pattern[i];
             
-            if (dfa_[state] == null) {
-                dfa_[state] = new int[ascii_size];
+            if (dfa[state] == null) {
+                dfa[state] = new int[ascii_size];
             }
             
-            auto old_target = dfa_[state][event];
+            auto old_target = dfa[state][event];
             
-            dfa_[state][event] = target;
-            dfa_[target] = dfa_[old_target].dup;
+            dfa[state][event] = target;
+            dfa[target] = new int[ascii_size];
+            dfa[target][] = dfa[old_target][];
             
             state = target;
         }
         
         assert(state == terminal_);
+
+        return dfa;
     }
   
-    int search_(in string corpus) nothrow const
+    int search_(in string corpus) const
     {
         for (auto state = init_state, cursor = 0; cursor < corpus.length; ++cursor) {
             const event = corpus[cursor];
@@ -92,7 +95,7 @@ private:
         return -1;
     }
     
-    int transit_(int state, int event) nothrow const
+    int transit_(int state, int event) const
     in {
         assert(0 <= state && state < terminal_);
         assert(0 <= event && event < ascii_size);
@@ -103,17 +106,21 @@ private:
     }
     
 private:
-    int[][] dfa_ = void;
+    immutable int[][] dfa_;
     immutable int terminal_;
     immutable int pat_len_;
 }
 
-int dfa(in string corpus, in string pattern)
+pure int dfa(in string corpus, in string pattern) nothrow
 {
     return Dfa_searcher(pattern).search(corpus);
 }
 
 unittest {
+    import miao.string.test;
+
+    runCreate!Dfa_searcher();
+
 	import miao.string.test;
 	import std.stdio;
 

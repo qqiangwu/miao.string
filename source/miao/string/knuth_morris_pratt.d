@@ -20,7 +20,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) pure nothrow const
+	int search(in string corpus) nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -42,16 +42,20 @@ private:
 		while (cursor < pattern_.length) {
 			int prev = cursor - 1;
 			int prefix_cursor = skip_[prev];
-			while (prefix_cursor >= 0 && pattern_[prev] != pattern_[prefix_cursor]) {
+			
+            while (prefix_cursor >= 0 && pattern_[prev] != pattern_[prefix_cursor]) {
 				prefix_cursor = skip_[prefix_cursor];
 			}
 			
-			skip_[cursor] = prefix_cursor + 1;
-			cursor++;
+            prefix_cursor++;
+
+			skip_[cursor] = prefix_cursor;
+			
+            cursor++;
 		}
 	}
 	
-	int search_(in string corpus) pure nothrow const
+	int search_(in string corpus) nothrow const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		const last_pos = pattern_.length - 1;

@@ -39,7 +39,7 @@ public:
 		}
 	}
 	
-	int search(in string corpus) pure nothrow const
+	int search(in string corpus) nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -50,8 +50,8 @@ public:
 		return search_(corpus);
 	}
 	
-private pure nothrow:
-	int search_(in string corpus) const
+private:
+	int search_(in string corpus) nothrow const
 	{		
 		const compare_length = corpus.length - pattern_length_;
 
@@ -77,7 +77,7 @@ private pure nothrow:
 		return -1;
 	}
 
-	int hash_(in string s) const
+	int hash_(in string s) nothrow const
 	{
 		int code = 0;
 		
@@ -88,7 +88,7 @@ private pure nothrow:
 		return code;
 	}
 	
-	int rehash_(in int oldv, in int newv, in int hcode) const
+	int rehash_(in int oldv, in int newv, in int hcode) nothrow const
 	{
 		assert(pattern_length_ > 0);
 		return ((hcode - oldv * d_) << 1) + newv;
@@ -96,9 +96,9 @@ private pure nothrow:
 	
 private:
 	string pattern_;
-	int hashed_pattern_;
-	int pattern_length_;
-	int d_;
+	immutable int hashed_pattern_;
+	immutable int pattern_length_;
+	immutable int d_;
 }
 
 int karp_rabin(in string corpus, in string pattern) nothrow

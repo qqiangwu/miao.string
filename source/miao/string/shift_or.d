@@ -27,10 +27,11 @@ public:
         pat_len_ = pattern.length;
         if (pat_len_ > 0) {
             preprocess_(pattern);
+            lim_ = ~0 << (pat_len_ - 1);
         }
     }
     
-    int search(in string corpus) pure nothrow const
+    int search(in string corpus) nothrow const
 	out(result) {
 			assert(result == -1 || (0 <= result && result < corpus.length));
 		}
@@ -45,7 +46,7 @@ private:
     enum word_len = int.sizeof * 8;
     enum ascii_size = 127;
     
-    int search_(in string corpus) pure nothrow const
+    int search_(in string corpus) nothrow const
     {
         auto state = ~0U;
         
@@ -75,14 +76,12 @@ private:
         foreach (const cursor, letter; pattern) {
 			s_[letter] &= ~(0x1 << cursor);
 		}
-        
-        lim_ = ~0 << (pat_len_ - 1);
     }
     
 private:
     uint[] s_;
-    uint lim_;
-    int pat_len_;
+    immutable uint lim_;
+    immutable int pat_len_;
 }
 
 int shift_or(in string corpus, in string pattern)

@@ -28,11 +28,12 @@ public:
     {
         pat_len_ = pattern.length;
         if (pat_len_ > 0) {
+            terminal_ = pat_len_;
             build_dfa_(pattern);
         }
     }
     
-    int search(in string corpus) pure nothrow const
+    int search(in string corpus) nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -72,12 +73,10 @@ private:
             state = target;
         }
         
-        terminal_ = pat_len_;
-        
         assert(state == terminal_);
     }
   
-    int search_(in string corpus) pure nothrow const
+    int search_(in string corpus) nothrow const
     {
         for (auto state = init_state, cursor = 0; cursor < corpus.length; ++cursor) {
             const event = corpus[cursor];
@@ -93,7 +92,7 @@ private:
         return -1;
     }
     
-    int transit_(int state, int event) pure nothrow const
+    int transit_(int state, int event) nothrow const
     in {
         assert(0 <= state && state < terminal_);
         assert(0 <= event && event < ascii_size);
@@ -105,8 +104,8 @@ private:
     
 private:
     int[][] dfa_ = void;
-    int terminal_;
-    int pat_len_;
+    immutable int terminal_;
+    immutable int pat_len_;
 }
 
 int dfa(in string corpus, in string pattern)

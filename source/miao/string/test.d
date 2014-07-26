@@ -30,7 +30,7 @@ version(unittest) {
 			assert(fn("", " ") == -1);
 
 			assert(fn("abc", "a") == 0);
-			assert(fn("abcd", "bc") == 1);
+			assert(fn("abcd", "bc") == 1, fn("abcd", "bc").to!string);
 
 			assert(fn(haystack1, needle1) == 26);
 			assert(fn(haystack1, needle2) == 18);

@@ -9,7 +9,7 @@ public:
 		pattern_ = pattern;
 	}
 	
-	int search(in string corpus) pure nothrow const
+	int search(in string corpus) nothrow const
 	out(result) {
 		import std.conv : to;
 		assert(result == -1 || (0 <= result && result < corpus.length));
@@ -21,9 +21,9 @@ public:
 	}
 	
 private:
-	int search_(in string corpus) pure nothrow const
+	int search_(in string corpus) nothrow const
 	{
-		immutable compare_length = corpus.length - pattern_.length;
+		const compare_length = corpus.length - pattern_.length;
 		
 		auto window_pos = 0;
 		

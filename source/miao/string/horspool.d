@@ -17,17 +17,19 @@ The searching phase has a quadratic worst case but it can be proved that the ave
 
 @trusted:
 
+import miao.common.bad_char_table;
+
 struct Horspool_searcher {
 public:
 	this(in string pattern)
 	{
 		pattern_ = pattern;
 		if (pattern_.length > 0) {
-			build_skip_table_();
+			skip_ = build_bm_table(pattern_);
 		}
 	}
 	
-	int search(in string corpus) pure nothrow const
+	int search(in string corpus) nothrow const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -39,15 +41,16 @@ public:
 	}
 	
 private:
-	int search_(in string corpus) pure nothrow const
+	int search_(in string corpus) nothrow const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		
-		int cursor = pattern_.length - 1;
 		int window_pos = 0;
 		
 		while (window_pos <= cmp_len) {
 			const window = corpus[window_pos .. window_pos + pattern_.length];
+            
+            int cursor = pattern_.length - 1;
 			
 			//! find mismatch
 			while (cursor >= 0 && window[cursor] == pattern_[cursor]) {
@@ -59,51 +62,22 @@ private:
 			}
 			else {
 				// sliding window
-				cursor = pattern_.length - 1;
-				window_pos += cursor - skip_.get(window[cursor]);
+				const bad_char = window[$ - 1];
+				window_pos += skip_[bad_char];
 			}
 		}
 		
 		return -1;
 	}
-
-	void build_skip_table_()
-	{
-		//! ignore the last char
-		for (auto i = 0; i < pattern_.length - 1; ++i) {
-			skip_.insert(pattern_[i], i);
-		}
-	}
 	
 private:
-	Skip_table skip_ = Skip_table(-1);
+	Bad_char_table skip_ = void;
 	string pattern_;
 }
 
 int horspool(in string corpus, in string pattern)
 {
 	return Horspool_searcher(pattern).search(corpus);
-}
-
-private struct Skip_table {
-	int[char] skip_;
-	int default_;
-	
-	this(in int default_val)
-	{
-		default_ = default_val;
-	}
-
-	void insert(in char c, in int idx)
-	{
-		skip_[c] = idx;
-	}
-	
-	int get(in char ch) pure nothrow const
-	{
-		const val = ch in skip_;
-		return val? *val: default_;
-	}
 }
 
 unittest {

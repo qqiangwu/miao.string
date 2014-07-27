@@ -26,9 +26,13 @@ import std.math;
  
 @trusted:
 
-struct Karp_rabin_searcher {
-public pure nothrow:
-	this(in string pattern) inout
+import miao.common.check;
+import miao.common.util;
+
+struct Karp_rabin_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+	this(in PatRange pattern)
 	{
 		/* preprocessing */
 		pattern_ = pattern;
@@ -39,7 +43,7 @@ public pure nothrow:
 		}
 	}
 	
-	int search(in string corpus) const
+	int search(in CorpusRange corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -50,8 +54,8 @@ public pure nothrow:
 		return search_(corpus);
 	}
 	
-private pure nothrow:
-	int search_(in string corpus) const
+private:
+	int search_(in CorpusRange corpus) const
 	{		
 		const compare_length = corpus.length - pattern_length_;
 
@@ -77,7 +81,7 @@ private pure nothrow:
 		return -1;
 	}
 
-	int hash_(in string s) const
+	int hash_(Rng)(in Rng s) const
 	{
 		int code = 0;
 		
@@ -88,29 +92,23 @@ private pure nothrow:
 		return code;
 	}
 	
-	int rehash_(in int oldv, in int newv, in int hcode) const
+	pure int rehash_(in int oldv, in int newv, in int hcode) const nothrow
 	{
 		assert(pattern_length_ > 0);
 		return ((hcode - oldv * d_) << 1) + newv;
 	}
 	
 private:
-	immutable string pattern_;
+	const PatRange pattern_;
 	immutable int hashed_pattern_;
 	immutable int pattern_length_;
 	immutable int d_;
 }
 
-pure int karp_rabin(in string corpus, in string pattern) nothrow
-{
-	return Karp_rabin_searcher(pattern).search(corpus);
-}
+alias karp_rabin_search = GenerateFunction!Karp_rabin_searcher;
 
 unittest {
 	import miao.string.test;
-	import std.stdio;
-
-	writeln("Test karp_rabin");
-	runTest!karp_rabin();
-    runCreate!Karp_rabin_searcher();
+	
+    testAll!(Karp_rabin_searcher, karp_rabin_search)();
 }

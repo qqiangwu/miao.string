@@ -19,10 +19,15 @@ Description
 @trusted:
 
 import miao.common.bad_char_table;
+import miao.common.check;
+import miao.common.util;
 
-struct Quick_search_searcher {
-public pure nothrow:
-    this(in string pattern) inout
+version(unittest) import std.stdio;
+
+struct Quick_search_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+    this(in PatRange pattern)
     {
         pattern_ = pattern;
 
@@ -31,7 +36,7 @@ public pure nothrow:
         }
     }
 
-    int search(in string corpus) const
+    int search(in CorpusRange corpus) const
 	out(result) {
             assert(result == -1 || (0 <= result && result < corpus.length));
     }
@@ -42,8 +47,8 @@ public pure nothrow:
 		return search_(corpus);
 	}
 
-private pure nothrow:
-    int search_(in string corpus) const
+private:
+    int search_(in CorpusRange corpus) const
     {
         const cmp_len = corpus.length - pattern_.length;
 
@@ -68,20 +73,14 @@ private pure nothrow:
     }
 
 private:
-    immutable Bad_char_table skip_ = void;
-    immutable string pattern_;
+    immutable Bad_char_table!(const ValueType!PatRange) skip_;
+    const PatRange pattern_;
 }
 
-pure int quick_search(in string corpus, in string pattern) nothrow
-{
-	return Quick_search_searcher(pattern).search(corpus);
-}
+alias quick_search = GenerateFunction!Quick_search_searcher;
 
 unittest {
 	import miao.string.test;
-	import std.stdio;
 
-	writeln("Test quick_search");
-	runTest!quick_search();
-    runCreate!Quick_search_searcher();
+    testAll!(Quick_search_searcher, quick_search)();
 }

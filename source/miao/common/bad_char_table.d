@@ -2,36 +2,38 @@ module miao.common.bad_char_table;
 
 @trusted:
 
-struct Bad_char_table {
+struct Bad_char_table(KeyType) {
 public pure nothrow:
-    this(in int defaul_val) inout
+    this(in int default_val)
     {
-        default_val_ = defaul_val;
+        default_val_ = default_val;
     }
 
-    int opIndex(in char idx) const
+    int opIndex(in KeyType idx) const
     {
         const ret = idx in skip_table_;
         return ret? *ret: default_val_;
     }
 
 package pure nothrow:
-    int opIndexAssign(in int val, in char idx)
+    int opIndexAssign(in int val, in KeyType idx)
     {
         return skip_table_[idx] = val;
     }
 
 private:
-    int[char] skip_table_;
+    int[KeyType] skip_table_;
     immutable int default_val_;
 }
 
-pure Bad_char_table build_bm_table(in string pattern) nothrow
+import miao.common.util;
+
+pure auto build_bm_table(PatRange)(in PatRange pattern) nothrow
 in {
     assert(pattern.length > 0);
 }
 body {
-    auto table = Bad_char_table(pattern.length);
+    auto table = Bad_char_table!(ValueType!PatRange)(pattern.length);
 
     const last_pos = pattern.length - 1;
 
@@ -42,16 +44,26 @@ body {
     return table;
 }
 
-pure Bad_char_table build_qs_table(in string pattern) nothrow
+pure auto build_qs_table(PatRange)(in PatRange pattern) nothrow
 in {
     assert(pattern.length > 0);
 }
 body {
-    auto table = Bad_char_table(pattern.length + 1);
+    auto table = Bad_char_table!(ValueType!PatRange)(pattern.length + 1);
 
     foreach (const idx, letter; pattern) {
         table[letter] = pattern.length - idx;
     }
 
     return table;
+}
+
+unittest {
+    auto x = build_bm_table(" ");
+    const y = build_bm_table(" ");
+    immutable z = build_bm_table(" ");
+
+    auto x1 = build_bm_table([1]);
+    const y1 = build_bm_table([1]);
+    immutable z1 = build_bm_table([1]);
 }

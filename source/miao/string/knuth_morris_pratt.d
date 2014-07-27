@@ -9,9 +9,13 @@ delay bounded by logPhi(m) where Phi is the golden ratio ( golden ratio ).
 
 @trusted:
 
-struct Knuth_morris_pratt_searcher {
-public pure nothrow:
-	this(in string pattern) inout
+import miao.common.check;
+import miao.common.util;
+
+struct Knuth_morris_pratt_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+	this(in PatRange pattern)
 	{
 		pattern_ = pattern;
 		
@@ -20,7 +24,7 @@ public pure nothrow:
 		}
 	}
 	
-	int search(in string corpus) const
+	int search(in CorpusRange corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -31,8 +35,8 @@ public pure nothrow:
 		return search_(corpus);
 	}
 	
-private pure nothrow:
-	int[] build_skip_table_() inout
+private:
+	pure int[] build_skip_table_() inout nothrow
 	{
 		auto skip = new int[pattern_.length];
 		
@@ -57,7 +61,7 @@ private pure nothrow:
         return skip;
 	}
 	
-	int search_(in string corpus) const
+	int search_(in CorpusRange corpus) const
 	{
 		const cmp_len = corpus.length - pattern_.length;
 		const last_pos = pattern_.length - 1;
@@ -88,20 +92,14 @@ private pure nothrow:
 	}
 
 private:
-	immutable string pattern_;
+	const PatRange pattern_;
 	immutable int[] skip_;
 }
 
-pure int knuth_morris_pratt(in string corpus, in string pattern) nothrow
-{
-	return Knuth_morris_pratt_searcher(pattern).search(corpus);
-}
+alias knuth_morris_pratt_search = GenerateFunction!Knuth_morris_pratt_searcher;
 
 unittest {
 	import miao.string.test;
-	import std.stdio;
-
-	writeln("Test knuth_morris_pratt");
-	runTest!knuth_morris_pratt();
-    runCreate!Knuth_morris_pratt_searcher();
+	
+    testAll!(Knuth_morris_pratt_searcher, knuth_morris_pratt_search)();
 }

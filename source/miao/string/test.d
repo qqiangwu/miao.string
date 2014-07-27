@@ -1,14 +1,26 @@
 module miao.string.test;
 
 version(unittest) {
-    auto runCreate(T)()
+    private auto runTpl(alias fnTpl)()
     {
-        auto a = T("");
-        auto b = const(T)("");
-        auto c = immutable(T)("");
+        assert(fnTpl([1, 2], [0, 1, 2]) == -1);
+        assert(fnTpl([0, 1, 2], [1, 2]) == 1);
+
+        immutable x = [1, 2, 3];
+        assert(fnTpl([1, 2, 3, 4], x) == 0);
+
+        const(int)[] y = [1, 2, 3];
+        assert(fnTpl([1, 2, 3, 4], y) == 0);
     }
 
-	auto runTest(alias fn) ()
+    private auto runCreate(alias T)()
+    {
+        auto a = T!(string)("");
+        const b = T!(string)("");
+        immutable c = T!(string)("");
+    }
+
+	private auto runTest(alias fn) ()
 	{
 		const haystack1 = "NOW AN FOWE\220ER ANNMAN THE ANPANMANEND";
 		const needle1 = "ANPANMAN";
@@ -47,7 +59,7 @@ version(unittest) {
 			
 		assert(fn(needle1, haystack1) == -1);
 
-		assert(fn(haystack1, haystack1) == 0);
+		assert(fn(haystack1, haystack1) == 0, fn(haystack1, haystack1).to!string);
 		assert(fn(haystack2, haystack2) == 0);
 
 		assert(fn(haystack2, needle11) == 15, fn(haystack2, needle11).to!string);
@@ -58,4 +70,16 @@ version(unittest) {
 
 		assert(fn("GCATCGCAGAGAGTATACAGTACG", "GCAGAGAG") == 5);
 	}	
+
+    auto testAll(alias Type, alias Searcher)()
+    {
+        import std.stdio;
+
+        writeln("Test ", Type.stringof);
+
+        runTest!Searcher();
+        runCreate!Type();
+        runTpl!Searcher();
+        writeln("\tTest Passed!\n");
+    }
 }

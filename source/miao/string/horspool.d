@@ -18,10 +18,17 @@ The searching phase has a quadratic worst case but it can be proved that the ave
 @trusted:
 
 import miao.common.bad_char_table;
+import miao.common.check;
+import miao.common.util;
 
-struct Horspool_searcher {
-public pure nothrow:
-	this(in string pattern) inout
+version(unittest) import std.stdio;
+
+struct Horspool_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+    alias value_type = ValueType!PatRange;
+
+	this(in PatRange pattern)
 	{
 		pattern_ = pattern;
 		if (pattern_.length > 0) {
@@ -29,7 +36,7 @@ public pure nothrow:
 		}
 	}
 	
-	int search(in string corpus) const
+	int search(in CorpusRange corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -40,10 +47,10 @@ public pure nothrow:
 		return search_(corpus);
 	}
 	
-private pure nothrow:
-	int search_(in string corpus) const
+private:
+	int search_(in CorpusRange corpus) const
 	{
-		const cmp_len = corpus.length - pattern_.length;
+		immutable cmp_len = corpus.length - pattern_.length;
 		
 		int window_pos = 0;
 		
@@ -71,20 +78,14 @@ private pure nothrow:
 	}
 	
 private:
-	immutable Bad_char_table skip_ = void;
-	immutable string pattern_;
+	immutable Bad_char_table!(const value_type) skip_;
+	const PatRange pattern_;
 }
 
-pure int horspool(in string corpus, in string pattern) nothrow
-{
-	return Horspool_searcher(pattern).search(corpus);
-}
+alias horspool_search = GenerateFunction!Horspool_searcher;
 
 unittest {
 	import miao.string.test;
-	import std.stdio;
-
-	writeln("Test horspool");
-	runTest!horspool();
-    runCreate!Horspool_searcher();
+	
+    testAll!(Horspool_searcher, horspool_search)();
 }

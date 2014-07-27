@@ -2,16 +2,19 @@ module miao.string.brute_force;
 
 @trusted:
 
-struct Brute_force_searcher {
-public pure nothrow:
-	this(in string pattern) inout
+import miao.common.check;
+import miao.common.util;
+
+struct Brute_force_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+	this(in PatRange pattern)
 	{
 		pattern_ = pattern;
 	}
 	
-	int search(in string corpus) const
+	int search(in CorpusRange corpus) const
 	out(result) {
-		import std.conv : to;
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
 	body {
@@ -20,15 +23,15 @@ public pure nothrow:
 		return search_(corpus);
 	}
 	
-private pure nothrow:
-	int search_(in string corpus) const
+private:
+	int search_(in CorpusRange corpus) const
 	{
 	    immutable compare_length = corpus.length - pattern_.length;
 		
 		auto window_pos = 0;
 		
 		for (; window_pos <= compare_length; ++window_pos) {
-			immutable window = corpus[window_pos .. window_pos + pattern_.length];
+			const window = corpus[window_pos .. window_pos + pattern_.length];
 			auto cursor = 0;
 			
 			for (; cursor < pattern_.length && window[cursor] == pattern_[cursor]; ++cursor) { 
@@ -42,19 +45,13 @@ private pure nothrow:
 	}
 
 private:
-	immutable string pattern_;
+	const PatRange pattern_;
 }
 
-pure int brute_force(in string corpus, in string pattern) nothrow
-{
-	return Brute_force_searcher(pattern).search(corpus);
-}
+alias brute_force_search = GenerateFunction!Brute_force_searcher;
 
 unittest {
 	import miao.string.test;
-	import std.stdio;
-		
-    writeln("Test brute force");
-	runTest!brute_force();
-    runCreate!Brute_force_searcher();
+	
+    testAll!(Brute_force_searcher, brute_force_search)();
 }

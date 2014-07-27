@@ -21,10 +21,14 @@ Description
 
 @trusted:
 
+import miao.common.check;
+import miao.common.util;
+
 //! \fix    generalized to all kinds of charset
-struct Dfa_searcher {
-public pure nothrow:
-    this(in string pattern) inout
+struct Dfa_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+    this(in PatRange pattern)
     {
         pat_len_ = pattern.length;
         if (pat_len_ > 0) {
@@ -33,7 +37,7 @@ public pure nothrow:
         }
     }
     
-    int search(in string corpus) const
+    int search(in CorpusRange corpus) const
 	out(result) {
 		assert(result == -1 || (0 <= result && result < corpus.length));
 	}
@@ -44,11 +48,11 @@ public pure nothrow:
 		return search_(corpus);
 	}
     
-private pure nothrow:
-    enum ascii_size = 127;
+private:
+    enum ascii_size = cast(uint)0xff;
     enum init_state = 0;
     
-    int[][] build_dfa_(in string pattern) inout
+    int[][] build_dfa_(in PatRange pattern) const
     in {
         assert(pat_len_ > 0);
     }
@@ -60,11 +64,13 @@ private pure nothrow:
         for (auto i = 0; i < pat_len_; ++i) {
             const target = i + 1;
             const event = pattern[i];
-            
+
             if (dfa[state] == null) {
                 dfa[state] = new int[ascii_size];
             }
-            
+
+            assert(dfa[target] == null);
+
             auto old_target = dfa[state][event];
             
             dfa[state][event] = target;
@@ -79,7 +85,7 @@ private pure nothrow:
         return dfa;
     }
   
-    int search_(in string corpus) const
+    int search_(inout const CorpusRange corpus) const
     {
         for (auto state = init_state, cursor = 0; cursor < corpus.length; ++cursor) {
             const event = corpus[cursor];
@@ -111,68 +117,10 @@ private:
     immutable int pat_len_;
 }
 
-pure int dfa(in string corpus, in string pattern) nothrow
-{
-    return Dfa_searcher(pattern).search(corpus);
-}
+alias dfa_search = GenerateFunction!Dfa_searcher;
 
 unittest {
-    import miao.string.test;
-
-    runCreate!Dfa_searcher();
-
 	import miao.string.test;
-	import std.stdio;
 
-	writeln("Test dfa");
-    
-    alias fn = dfa;
-    
-    const haystack1 = "NOW AN FOWEGER ANNMAN THE ANPANMANEND";
-    const needle1 = "ANPANMAN";
-    const needle2 = "MAN THE";
-    const needle3 = "WEGER";
-    const needle4 = "NOW ";
-    const needle5 = "NEND";
-    const needle6 = "NOT FOUND";
-    const needle7 = "NOT FOTND";
-
-    const haystack2 = "ABC ABCDAB ABCDABCDABDE";
-    const needle11 = "ABCDABD";
-    
-    const haystack3 = "abra abracad abracadabra";
-    const needle12 = "abracadabra";
-    const needle13 = "";
-
-    const haystack4 = "";
-
-    import std.conv : to;
-
-    assert(fn("", "") == -1);
-    assert(fn("abc", "") == -1);
-    assert(fn("", " ") == -1);
-
-    assert(fn("abc", "a") == 0);
-    assert(fn("abcd", "bc") == 1);
-
-    assert(fn(haystack1, needle1) == 26);
-    assert(fn(haystack1, needle2) == 18);
-    assert(fn(haystack1, needle3) == 9);
-    assert(fn(haystack1, needle4) == 0);
-    assert(fn(haystack1, needle5) == 33);
-    assert(fn(haystack1, needle6) == -1);
-    assert(fn(haystack1, needle7) == -1);
-    
-    assert(fn(needle1, haystack1) == -1);
-
-    assert(fn(haystack1, haystack1) == 0);
-    assert(fn(haystack2, haystack2) == 0);
-
-    assert(fn(haystack2, needle11) == 15, fn(haystack2, needle11).to!string);
-    assert(fn(haystack3, needle12) == 13);
-
-    assert(fn(haystack1, needle13) == -1);
-    assert(fn(haystack4, needle1) == -1);
-
-    assert(fn("GCATCGCAGAGAGTATACAGTACG", "GCAGAGAG") == 5);
+    testAll!(Dfa_searcher, dfa_search)();
 }

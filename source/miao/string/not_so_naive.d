@@ -14,9 +14,13 @@ Description
 
 @trusted:
 
-struct Not_so_naive_searcher {
-public pure nothrow:
-    this(in string pattern) inout
+import miao.common.check;
+import miao.common.util;
+
+struct Not_so_naive_searcher(PatRange, CorpusRange = PatRange) 
+    if (isValidParam!(PatRange, CorpusRange)) {
+public:
+    this(in PatRange pattern)
     {
         pattern_ = pattern;
         if (pattern_.length >= 2) {
@@ -31,7 +35,7 @@ public pure nothrow:
         }
     }
 
-    int search(in string corpus) const
+    int search(in CorpusRange corpus) const
     out(result) {
             assert(result == -1 || (0 <= result && result < corpus.length));
     }
@@ -44,8 +48,8 @@ public pure nothrow:
 		return search_(corpus);
 	}
 
-private pure nothrow:
-    int search_(in string corpus) const
+private:
+    int search_(in CorpusRange corpus) const
     in {
         assert(corpus.length >= 2);
         assert(pattern_.length >= 2);
@@ -68,21 +72,15 @@ private pure nothrow:
     }
     
 private:
-    immutable string pattern_;
+    const PatRange pattern_;
     immutable uint skip_;
     immutable uint slide_;
 }
 
-pure int not_so_naive(in string corpus, in string pattern) nothrow
-{
-    return Not_so_naive_searcher(pattern).search(corpus);
-}
+alias not_so_naive_search = GenerateFunction!Not_so_naive_searcher;
 
 unittest {
     import miao.string.test;
-    import std.stdio;
-
-    writeln("Test not_so_naive");
-    runTest!not_so_naive();
-    runCreate!Not_so_naive_searcher();
+    
+    testAll!(Not_so_naive_searcher, not_so_naive_search)();
 }

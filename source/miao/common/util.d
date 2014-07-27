@@ -14,11 +14,14 @@ template GenerateFunction(alias Searcher) {
     }
 }
 
+/* return unqualified element type */
 template ValueType(Rng) {
     static if (isSomeString!(Rng)) {
-        alias ValueType = typeof(Rng.init[0]);
+        alias Type = typeof(Rng.init[0]);
     }
     else {
-        alias ValueType = ElementType!Rng;
+        alias Type = ElementType!Rng;
     }
+
+    alias ValueType = Unqual!Type;
 }

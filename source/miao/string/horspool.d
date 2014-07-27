@@ -17,7 +17,7 @@ The searching phase has a quadratic worst case but it can be proved that the ave
 
 @trusted:
 
-import miao.common.bad_char_table;
+import miao.common.skip_table;
 import miao.common.check;
 import miao.common.util;
 
@@ -26,9 +26,7 @@ version(unittest) import std.stdio;
 struct Horspool_searcher(PatRange, CorpusRange = PatRange) 
     if (isValidParam!(PatRange, CorpusRange)) {
 public:
-    alias value_type = ValueType!PatRange;
-
-	this(in PatRange pattern)
+    this(in PatRange pattern)
 	{
 		pattern_ = pattern;
 		if (pattern_.length > 0) {
@@ -78,7 +76,7 @@ private:
 	}
 	
 private:
-	immutable Bad_char_table!(const value_type) skip_;
+	immutable Skip_table!(ValueType!PatRange) skip_;
 	const PatRange pattern_;
 }
 

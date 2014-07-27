@@ -18,7 +18,7 @@ Description
 
 @trusted:
 
-import miao.common.bad_char_table;
+import miao.common.skip_table;
 import miao.common.check;
 import miao.common.util;
 
@@ -73,7 +73,7 @@ private:
     }
 
 private:
-    immutable Bad_char_table!(const ValueType!PatRange) skip_;
+    immutable Skip_table!(ValueType!PatRange) skip_;
     const PatRange pattern_;
 }
 

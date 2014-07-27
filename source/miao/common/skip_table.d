@@ -1,8 +1,8 @@
-module miao.common.bad_char_table;
+module miao.common.skip_table;
 
 @trusted:
 
-struct Bad_char_table(KeyType) {
+struct Skip_table(KeyType) {
 public pure nothrow:
     this(in int default_val)
     {
@@ -15,7 +15,6 @@ public pure nothrow:
         return ret? *ret: default_val_;
     }
 
-package pure nothrow:
     int opIndexAssign(in int val, in KeyType idx)
     {
         return skip_table_[idx] = val;
@@ -33,7 +32,7 @@ in {
     assert(pattern.length > 0);
 }
 body {
-    auto table = Bad_char_table!(ValueType!PatRange)(pattern.length);
+    auto table = Skip_table!(ValueType!PatRange)(pattern.length);
 
     const last_pos = pattern.length - 1;
 
@@ -49,7 +48,7 @@ in {
     assert(pattern.length > 0);
 }
 body {
-    auto table = Bad_char_table!(ValueType!PatRange)(pattern.length + 1);
+    auto table = Skip_table!(ValueType!PatRange)(pattern.length + 1);
 
     foreach (const idx, letter; pattern) {
         table[letter] = pattern.length - idx;

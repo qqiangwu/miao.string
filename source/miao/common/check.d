@@ -13,8 +13,12 @@ template isValidParam(PatRange, CorpusRange) {
 
         PatRange a;
         CorpusRange b;
+
         static assert(is(typeof(a[$ - 1])));
         static assert(is(typeof(b[$ - 1])));
+
+        static assert(is(typeof(a.length)));
+        static assert(is(typeof(b.length)));
     });
 }
 

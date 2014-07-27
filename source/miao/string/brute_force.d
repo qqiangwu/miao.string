@@ -20,7 +20,8 @@ public:
 	body {
 		if (corpus.length == 0 || pattern_.length == 0) return -1;
 		if (corpus.length < pattern_.length) return -1;
-		return search_(corpus);
+		
+        return search_(corpus);
 	}
 	
 private:

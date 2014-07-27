@@ -36,7 +36,7 @@ public:
 	}
 	
 private:
-	pure int[] build_skip_table_() inout nothrow
+	pure int[] build_skip_table_() const nothrow
 	{
 		auto skip = new int[pattern_.length];
 		

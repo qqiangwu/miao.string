@@ -32,25 +32,27 @@ DEALINGS IN THE SOFTWARE.
 Usage:
 <pre><code>
 import miao.string.knuth_morris_pratt;
+import miao.string.horspool;
+import miao.string.karp_rabin;
+import miao.string.quick_search;
 
-knuth_morris_pratt("abc", "a"); // -> 0
-knuth_morris_pratt("abc", ""); // -> -1
+knuth_morris_pratt_search("abc", "a"); // -> 0
+knuth_morris_pratt_search("abc", ""); // -> -1
+quick_search("abc","c");  // -> 2
 
-const searcher = Knuth_morris_pratt_seacher("ab");
+const searcher = Knuth_morris_pratt_seacher!string("ab");
 
 searcher.search("abc"); // -> 0
 searcher.search("ccab"); // -> 2
 
 import miao.string.brute_force;
 
-brute_force("abc", "a"); // -> 0
-brute_force("abc", ""); // -> -1
+brute_force_search("abc", "a"); // -> 0
+brute_force_search("abc", ""); // -> -1
 
-const searcher = Brute_force_searcher("ab");
+const searcher = Brute_force_searcher!string("ab");
 
 searcher.search("abc"); // -> 0
 searcher.search("ccab"); // -> 2
 
-import miao.string.horspool;
-import miao.string.karp_rabin;
 </code></pre>

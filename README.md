@@ -1,9 +1,9 @@
-miao.string
-===========
+# miao.string
 
 String matching library for Dlang
 
-===========
+# License
+
 Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
@@ -28,31 +28,29 @@ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
-==============
-Usage:
-<pre><code>
-import miao.string.knuth_morris_pratt;
-import miao.string.horspool;
-import miao.string.karp_rabin;
-import miao.string.quick_search;
 
-knuth_morris_pratt_search("abc", "a"); // -> 0
-knuth_morris_pratt_search("abc", ""); // -> -1
-quick_search("abc","c");  // -> 2
+# Usage:
 
-const searcher = Knuth_morris_pratt_seacher!string("ab");
+    import miao.string.knuth_morris_pratt;
+    import miao.string.horspool;
+    import miao.string.karp_rabin;
+    import miao.string.quick_search;
 
-searcher.search("abc"); // -> 0
-searcher.search("ccab"); // -> 2
+    knuth_morris_pratt_search("abc", "a"); // -> 0
+    knuth_morris_pratt_search("abc", ""); // -> -1
+    quick_search("abc","c");  // -> 2
 
-import miao.string.brute_force;
+    const searcher = Knuth_morris_pratt_seacher!string("ab");
 
-brute_force_search("abc", "a"); // -> 0
-brute_force_search("abc", ""); // -> -1
+    searcher.search("abc"); // -> 0
+    searcher.search("ccab"); // -> 2
 
-const searcher = Brute_force_searcher!string("ab");
+    import miao.string.brute_force;
 
-searcher.search("abc"); // -> 0
-searcher.search("ccab"); // -> 2
+    brute_force_search("abc", "a"); // -> 0
+    brute_force_search("abc", ""); // -> -1
 
-</code></pre>
+    const searcher = Brute_force_searcher!string("ab");
+
+    searcher.search("abc"); // -> 0
+    searcher.search("ccab"); // -> 2

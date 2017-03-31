@@ -5,6 +5,7 @@ performs the comparisons from left to right;
 preprocessing phase in O(m) space and time complexity;
 searching phase in O(n+m) time complexity (independent from the alphabet size);
 delay bounded by logPhi(m) where Phi is the golden ratio ( golden ratio ).
+
 */
 
 @trusted:
